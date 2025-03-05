@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <script src='https://rawcdn.githack.com/nicgirault/circosJS/77d42d1c3ed95b57a04f48f157cd1d0c4f7d48ad/dist/circosJS.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/d3-queue/3.0.3/d3-queue.js'></script>
+  </head>
+
+  <body>
+    <svg id='chart'></svg>
+
+    <script>
+      var circos = new circosJS({
+        container: '#chart'
+      });
+      var drawCircos = function(error, GRCh37, rawData) {
+
+        data = rawData.map(function(d){
+          return [
+            d.source_id,
+            parseInt(d.source_breakpoint) - 2000000,
+            parseInt(d.source_breakpoint) + 2000000,
+            d.target_id,
+            parseInt(d.target_breakpoint) - 2000000,
+            parseInt(d.target_breakpoint) + 2000000,
+          ];
+        });
+
+        circos
+          .layout(
+            {
+              ticks: {display: true},
+            },
+            GRCh37
+          )
+          .chord('gene-fusion', {color: '#fd6a62'}, data)
+          .render();
+      };
+
+      queue()
+        .defer(d3.json, "GRCh37.json")
+        .defer(d3.csv, "fusion-genes.csv")
+        .await(drawCircos);
+    </script>
+  </body>
+
+</html>
